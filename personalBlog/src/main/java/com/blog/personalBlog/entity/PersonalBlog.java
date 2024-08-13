@@ -1,4 +1,4 @@
-package com.blog.personalBlog.model;
+package com.blog.personalBlog.entity;
 
 import java.util.ArrayList;
 import java.util.List;

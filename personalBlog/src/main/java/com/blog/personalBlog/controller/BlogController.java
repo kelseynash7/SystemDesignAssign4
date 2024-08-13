@@ -1,16 +1,13 @@
 package com.blog.personalBlog.controller;
 
 import com.blog.personalBlog.service.BlogService;
-import com.blog.personalBlog.model.Post;
+import com.blog.personalBlog.entity.Post;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.Option;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(path= "/posts")

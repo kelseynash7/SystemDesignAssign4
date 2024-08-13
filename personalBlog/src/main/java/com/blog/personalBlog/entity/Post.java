@@ -1,4 +1,4 @@
-package com.blog.personalBlog.model;
+package com.blog.personalBlog.entity;
 
 import jakarta.persistence.*;
 

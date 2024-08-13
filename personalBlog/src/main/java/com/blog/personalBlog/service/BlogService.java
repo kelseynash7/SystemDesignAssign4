@@ -1,6 +1,6 @@
 package com.blog.personalBlog.service;
 
-import com.blog.personalBlog.model.Post;
+import com.blog.personalBlog.entity.Post;
 import com.blog.personalBlog.repository.BlogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
