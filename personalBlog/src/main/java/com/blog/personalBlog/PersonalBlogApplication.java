@@ -1,7 +1,7 @@
 package com.blog.personalBlog;
 
 import com.blog.personalBlog.logger.Logger;
-import com.blog.personalBlog.repository.BlogRepository;
+import com.blog.personalBlog.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -30,5 +30,5 @@ public class PersonalBlogApplication {
 	}
 
 	@Autowired
-	BlogRepository blogRepository;
+	PostRepository postRepository;
 }

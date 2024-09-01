@@ -5,17 +5,29 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "post")
 public class Post {
 
     //Attributes
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "post_id")
     private Integer post_id;
-    private Integer author;
-    private Integer category;
+
+    @ManyToOne
+    @JoinColumn(name = "author", referencedColumnName = "user_id", nullable = false)
+    private User author;
+
+    @ManyToOne
+    @JoinColumn(name = "category", referencedColumnName = "category_id")
+    private Category category;
+
+    @Column(name = "title")
     private String title;
+
     @Column(columnDefinition = "TEXT")
     private String body;
+
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDate date;
 
@@ -23,21 +35,21 @@ public class Post {
     public Post() {
     }
 
-    public Post(Integer postId, Integer authorId, Integer categoryId, String title, String body, LocalDate date) {
+    public Post(Integer postId, User author, Category category, String title, String body, LocalDate date) {
         this.post_id = postId;
-        this.author = authorId;
-        this.category = categoryId;
+        this.author = author;
+        this.category = category;
         this.title = title;
         this.body = body;
         this.date = date;
     }
 
     //Setters and Getters
-    public Integer getAuthor() {
+    public User getAuthor() {
         return author;
     }
 
-    public void setAuthor(Integer author) {
+    public void setAuthor(User author) {
         this.author = author;
     }
 
@@ -65,11 +77,11 @@ public class Post {
         this.date = date;
     }
 
-    public Integer getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(Integer category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 

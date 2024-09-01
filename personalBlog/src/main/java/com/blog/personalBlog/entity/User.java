@@ -1,23 +1,36 @@
 package com.blog.personalBlog.entity;
 
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "users")
 public class User {
 
     //Attributes
-    private String displayName;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
+    private Integer user_id;
+
+    @Column(name = "username")
     private String username;
+
+    @Column(name = "password")
     private String password;
+
+    @Column(name = "displayName")
+    private String displayName;
 
     //Constructors
     public User() {
-        displayName = "";
-        username = "";
-        password = "";
     }
 
-    public User(String displayname, String username, String password) {
-        this.displayName = displayname;
+    public User(Integer userId, String username, String password, String displayname) {
+        this.user_id = userId;
         this.username = username;
         this.password = password;
+        this.displayName = displayname;
     }
 
     //Setters and Getters
@@ -43,5 +56,12 @@ public class User {
 
     public void setPassword(String passwordString) {
         this.password = passwordString;
+    }
+
+    public Integer getUser_id() {
+        return user_id;
+    }
+    public void setUser_id(Integer user_id) {
+        this.user_id = user_id;
     }
 }

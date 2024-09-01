@@ -106,12 +106,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Send POST Request to API
         const postRequest = new XMLHttpRequest();
-        postRequest.open('POST', 'http://52.71.159.161:8081/posts', true);
+        postRequest.open('POST', 'http://52.71.159.161/posts', true);
         postRequest.setRequestHeader("Content-Type", "application/json");
         const postBody = JSON.stringify({
             title: postTitle,
-            author: 1,
-            category: postCategory,
+            author: {
+                "user_id" : 1,
+                "displayName" : "kelsey"
+            },
+            category: {
+                "category_id": 1,
+                "category_name": "Misc"
+            },
             body: postDescription,
             date: formattedDate
         });
@@ -194,7 +200,7 @@ request.onload = function () {
           data-description="${post.body}">
             ${post.title}</h1><br>
             
-        <h2 class="category">${post.category}</h2><br>
+        <h2 class="category">${post.category.category_name}</h2><br>
         <span class="post-date">${post.date}</span>
         <p class="post-description">
         ${post.body.substring(0, 100)}...</p>
