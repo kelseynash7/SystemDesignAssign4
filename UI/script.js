@@ -2,6 +2,7 @@ var request = new XMLHttpRequest()
 
 // const logo = document.createElement('img')
 // logo.src = 'blog.png'
+var editPostTitle = "";
 
 document.addEventListener('DOMContentLoaded', function () {
     const createPostBtn = 
@@ -20,6 +21,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('closeEditModal');
     const postSubmitBtn = 
         document.getElementById('postSubmitBtn');
+    const editSubmitBtn = 
+        document.getElementById('editSubmitBtn');
     const postContainer = 
         document.querySelector('.post-container');
     const postDetailModal = 
@@ -112,8 +115,8 @@ document.addEventListener('DOMContentLoaded', function () {
         postContainer.insertBefore(newPost, 
             postContainer.firstChild);
 
-        const postCreatedMessage = document
-        .getElementById('postCreatedMessage');
+        const postCreatedMessage = 
+        document.getElementById('postCreatedMessage');
         postCreatedMessage.style.display = 'block';
 
 
@@ -125,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Send POST Request to API
         const postRequest = new XMLHttpRequest();
-        postRequest.open('POST', 'http://localhost:8081/posts', true);
+        postRequest.open('POST', 'http://52.71.159.161:8081/posts', true);
         postRequest.setRequestHeader("Content-Type", "application/json");
         const postBody = JSON.stringify({
             title: postTitle,
@@ -156,11 +159,15 @@ document.addEventListener('DOMContentLoaded', function () {
             const description = 
                 event.target.getAttribute('data-description');
             const category = event.target.getAttribute('category');
+            const postId = event.target.getAttribute('data-id');
+            const catId = event.target.getAttribute('category-id');
             // Set content in detail modal
             detailTitle.textContent = title;
             detailCategory.textContent = category;
             detailDate.textContent = date;
             detailDescription.textContent = description;
+            postDetailModal.setAttribute("post_id", postId);
+            postDetailModal.setAttribute("category_id", catId);
 
             // Display the detail modal
             postDetailModal.style.display = 'flex';
@@ -169,6 +176,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (event.target.classList.contains('delete-post')) {
             const titleToDelete = 
                 event.target.getAttribute('data-title');
+            const postId = event.target.getAttribute('data-id');
             const postToDelete = 
                 document.querySelector(`
             .post-title[data-title=
@@ -179,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             //Delete via API
             const delRequest = new XMLHttpRequest();
-            delRequest.open('DELETE', 'http://localhost:8081/posts/title/'+ encodeURIComponent(titleToDelete), true);
+            delRequest.open('DELETE', 'http://52.71.159.161:8081/posts/title/'+ encodeURIComponent(titleToDelete), true);
             delRequest.setRequestHeader("Content-Type", "application/json");
             delRequest.send();
 
@@ -205,6 +213,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     editPostBtn.addEventListener('click', function() {
 
+        //get post id
+        const postID = postDetailModal.getAttribute("post_id");
+        //get category id
+        const catId = postDetailModal.getAttribute("category_id");
+
         // Add fadeOut class
         postDetailModal.classList.add('fadeOut'); 
         setTimeout(() => {
@@ -226,13 +239,126 @@ document.addEventListener('DOMContentLoaded', function () {
         // createPostModal.setAttribute("postCategory", detailCategory);
         // createPostModal.setAttribute("postDescription", detailDescription);
 
+        editPostModal.setAttribute("post_id", postID);
+        editPostModal.setAttribute("category_id", catId);
+        editPostTitle = editTitle.value;
         editPostModal.style.display = 'flex';
+    });
 
+    editForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        // Validation
+        const postCategory = 
+            document.getElementById('editCategory').value;
+        const postTitle = 
+            document.getElementById('editTitle').value;
+        const postDescription = 
+            document.getElementById('editDescription').value;
+
+        if (postCategory.trim() === '' ||
+         postTitle.trim() === '' || 
+         postDescription.trim() === '') {
+            alert('Please fill out all fields.');
+            return;
+        }
+
+        // Get the current date
+        const currentDate = new Date();
+        const day = (currentDate.getDate() < 10 ? '0' : '') + currentDate.getDate();
+        const month = ((currentDate.getMonth() + 1) < 10 ? '0' : '') + (currentDate.getMonth() + 1);
+        const year = currentDate.getFullYear();
+        const formattedDate = year + '-' + month + '-' + day;
+
+        const postID = editPostModal.getAttribute("post_id");
+        const catId = editPostModal.getAttribute("category_id");
+        const postToEdit = 
+                document.querySelector(`
+            .post-title[data-id=
+                "${postID}"]`).closest('.post-box');
+
+    
+        // Create a new post element
+        //const newPost = document.createElement('div');
+        ///newPost.className = 'post-box';
+        postToEdit.innerHTML = `
+            <h1 class="post-title" data-title="${postTitle}"
+         data-date="${formattedDate}"
+          data-description="${postDescription}">
+            ${postTitle}</h1><br>
+            
+        <h2 class="category">${postCategory}</h2><br>
+        <span class="post-date">${formattedDate}</span>
+        <p class="post-description">
+        ${postDescription.substring(0, 100)}...</p>
+        <button class="delete-post" data-title="${postTitle}" data-id="${postID}">
+        Delete</button>
+        <span class="load-more" data-title="${postTitle}" 
+        data-date="${formattedDate}" 
+        data-description="${postDescription}"
+        category="${postCategory}"
+        data-id="${postID}">
+        Load more</span>
+        `;
+
+        //get unedited post
+        //const titleToEdit = editPostTitle;
+
+        // Replace old post with new
+        //postContainer.replaceChild(newPost, postToEdit);
+
+        // // Append the new post to the post container
+        // postContainer.insertBefore(newPost, 
+        //     postContainer.firstChild);
+
+        // const postEditedMessage = 
+        //     document.getElementById('postEditedMessage');
+        // postEditedMessage.style.display = 'block';
+
+
+        // Close the modal
+        editPostModal.style.display = 'none';
+
+        // Reset the form
+        editForm.reset();
+
+        // Send POST Request to API //TODO - make this an edited post
+        const postRequest = new XMLHttpRequest();
+        postRequest.open('PUT', 'http://52.71.159.161:8081/posts', true);
+        postRequest.setRequestHeader("Content-Type", "application/json");
+        // const postBody = JSON.stringify({
+        //     post_id: postID,
+        //     title: postTitle,
+        //     author: {
+        //         "user_id" : 1,
+        //         "displayName" : "kelsey"
+        //     },
+        //     category: {
+        //         "category_id": catId,
+        //         "category_name": postCategory
+        //     },
+        //     body: postDescription,
+        //     date: formattedDate
+        // });
+
+        const postBody = JSON.stringify({
+            post_id: postID,
+            title: postTitle,
+            author: 1,
+            category: 3,
+            body: postDescription,
+            date: formattedDate
+        });
+
+        postRequest.send(postBody)
+
+        // setTimeout(() => {
+        //     postEditedMessage.style.display = 'none';
+        // }, 3000);
     });
 
 //on load
-
-request.open('GET', 'http://localhost:8081/posts', true)
+request.open('GET', 'http://52.71.159.161:8081/posts', true)
 request.onload = function () {
   // Begin accessing JSON data here
   var data = JSON.parse(this.response)
@@ -244,19 +370,25 @@ request.onload = function () {
         newPost.innerHTML = `
             <h1 class="post-title" data-title="${post.title}"
          data-date="${post.date}"
-          data-description="${post.body}">
+          data-description="${post.body}"
+          data-id="${post.post_id}"
+          category="${post.category.category_name}"
+          category-id="${post.category.category_id}">
             ${post.title}</h1><br>
             
         <h2 class="category">${post.category.category_name}</h2><br>
         <span class="post-date">${post.date}</span>
         <p class="post-description">
         ${post.body.substring(0, 100)}...</p>
-        <button class="delete-post" data-title="${post.title}">
+        <button class="delete-post" data-title="${post.title}"
+        data-id="${post.post_id}">
         Delete</button>
         <span class="load-more" data-title="${post.title}" 
         data-date="${post.date}" 
         data-description="${post.body}"
-        category="${post.category.category_name}">
+        data-id="${post.post_id}"
+        category="${post.category.category_name}"
+        category-id="${post.category.category_id}">
         Load more</span>
         `;
 

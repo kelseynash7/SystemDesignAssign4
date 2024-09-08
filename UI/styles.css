@@ -244,6 +244,7 @@ footer {
     box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
 }
 
+.editSubmitBtn,
 .postSubmitBtn {
     background-color: #3498db;
     color: white;
@@ -255,6 +256,7 @@ footer {
     transition: background-color 0.3s;
 }
 
+.editSubmitBtn:hover,
 .postSubmitBtn:hover {
     background-color: #2980b9;
 }
