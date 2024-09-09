@@ -45,9 +45,15 @@
                             <label class="postheading" for="postCategory">
                                   Category
                               </label>
-                            <input type="text" class="postCategory"
+                            <!-- <input type="text" class="postCategory"
                              id="postCategory" name="postCategory" 
-                             autocomplete="off" required>
+                             autocomplete="off" required> -->
+                            <select name="postCategory" id="postCategory" class="postCategory" required>
+                                <option value=""></option>
+                                <option value="Misc">Misc</option>
+                                <option value="Testing">Testing</option>
+                                <option value="Cool Stuff">Cool Stuff</option>
+                            </select>
                         </div>
                     </div>
 
@@ -83,9 +89,12 @@
                             <label class="editheading" for="editCategory">
                                   Category
                               </label>
-                            <input type="text" class="editCategory"
-                             id="editCategory" name="editCategory" 
-                             autocomplete="off" required>
+                            <select name="editCategory" id="editCategory" class="editCategory" required>
+                                <option value=""></option>
+                                <option value="Misc">Misc</option>
+                                <option value="Testing">Testing</option>
+                                <option value="Cool Stuff">Cool Stuff</option>
+                            </select>
                         </div>
                     </div>
 
@@ -110,7 +119,7 @@
                       &times;
                   </span>
                 <h1 id="detailTitle"></h1>
-                <span id="detailCategory"></span>
+                <h2 class="category" id="detailCategory"></h2><br>
                 <span id="detailDate"></span>
                 <p id="detailDescription"></p>
 
@@ -119,13 +128,33 @@
             </div>
         </div>
 
+        <div id="postEditedMessage" class="edit-message">
+            Post edited successfully!
+          </div>
+
         <div id="postCreatedMessage" class="post-message">
             Post created successfully!
           </div>
 
-        <div id="postEditedMessage" class="edit-message">
-            Post edited successfully!
-          </div>
+        <div id="errorPostMessageGeneric" class="error-message">
+            Error creating post! Try again!
+        </div>
+
+        <div id="errorEditMessageGeneric" class="error-message">
+            Error editing post! Try again!
+        </div>
+
+        <div id="errorPostMessageDuplicate" class="error-dup">
+            Error creating post! Cannot use existing post title!
+        </div>
+
+        <div id="errorDelete" class="error-del">
+            Error deleting post! Try again!
+        </div>
+
+        <div id="errorEditMessageDuplicate" class="error-dup">
+            Error editing post! Cannot use existing post title!
+        </div>
 
     </main>
 

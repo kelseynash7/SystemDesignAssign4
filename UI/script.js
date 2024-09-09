@@ -1,8 +1,13 @@
 var request = new XMLHttpRequest()
+var catRequest = new XMLHttpRequest()
 
 // const logo = document.createElement('img')
 // logo.src = 'blog.png'
-var editPostTitle = "";
+
+const categoryMap = new Map();
+categoryMap.set("Misc", 1);
+categoryMap.set("Testing", 2);
+categoryMap.set("Cool Stuff", 3);
 
 document.addEventListener('DOMContentLoaded', function () {
     const createPostBtn = 
@@ -40,10 +45,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const editPostBtn =
         document.getElementById('editPostBtn');
 
+    // Create post button! Loads the create post modal window
     createPostBtn.addEventListener('click', function () {
         createPostModal.style.display = 'flex';
     });
 
+    // closes the post modal window specifically
     closeModal.addEventListener('click', function () {
         // Add fadeOut class
         createPostModal.classList.add('fadeOut');
@@ -54,6 +61,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 500);
     });
 
+    // Closes the edit modal window specifically
     closeEditModal.addEventListener('click', function () {
         // Add fadeOut class
         editPostModal.classList.add('fadeOut');
@@ -64,6 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 500);
     });
 
+    // Create Post Logic
     postForm.addEventListener('submit', function (event) {
         event.preventDefault();
 
@@ -89,43 +98,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const year = currentDate.getFullYear();
         const formattedDate = year + '-' + month + '-' + day;
 
-        // Create a new post element
-        const newPost = document.createElement('div');
-        newPost.className = 'post-box';
-        newPost.innerHTML = `
-            <h1 class="post-title" data-title="${postTitle}"
-         data-date="${formattedDate}"
-          data-description="${postDescription}">
-            ${postTitle}</h1><br>
-            
-        <h2 class="category">${postCategory}</h2><br>
-        <span class="post-date">${formattedDate}</span>
-        <p class="post-description">
-        ${postDescription.substring(0, 100)}...</p>
-        <button class="delete-post" data-title="${postTitle}">
-        Delete</button>
-        <span class="load-more" data-title="${postTitle}" 
-        data-date="${formattedDate}" 
-        data-description="${postDescription}"
-        category="${postCategory}">
-        Load more</span>
-        `;
-
-        // Append the new post to the post container
-        postContainer.insertBefore(newPost, 
-            postContainer.firstChild);
-
-        const postCreatedMessage = 
-        document.getElementById('postCreatedMessage');
-        postCreatedMessage.style.display = 'block';
-
-
-        // Close the modal
-        createPostModal.style.display = 'none';
-
-        // Reset the form
-        postForm.reset();
-
         // Send POST Request to API
         const postRequest = new XMLHttpRequest();
         postRequest.open('POST', 'http://52.71.159.161:8081/posts', true);
@@ -137,20 +109,84 @@ document.addEventListener('DOMContentLoaded', function () {
                 "displayName" : "kelsey"
             },
             category: {
-                "category_id": 1,
-                "category_name": "Misc"
+                "category_id": categoryMap.get(postCategory),
+                "category_name": postCategory
             },
             body: postDescription,
             date: formattedDate
         });
 
-        postRequest.send(postBody)
+        postRequest.onload = function () {
+            var data = JSON.parse(postRequest.response);
+            if (postRequest.status >= 200 && postRequest.status < 400) {
+                var postId = data.post_id;
+                // Create a new post element
+                const newPost = document.createElement('div');
+                newPost.className = 'post-box';
+                newPost.innerHTML = `
+                    <h1 class="post-title" data-title="${postTitle}"
+                    data-date="${formattedDate}"
+                    data-description="${postDescription}">
+                    ${postTitle}</h1><br>
+                
+                    <h2 class="category">${postCategory}</h2><br>
+                    <span class="post-date">${formattedDate}</span>
+                    <p class="post-description">
+                    ${postDescription.substring(0, 100)}...</p>
+                    <button class="delete-post" data-title="${postTitle}">
+                    Delete</button>
+                    <span class="load-more" data-title="${postTitle}" 
+                    data-date="${formattedDate}" 
+                    data-description="${postDescription}"
+                    data-id="${postId}"
+                    category="${postCategory}">
+                    Load more</span>
+                `;
+    
+                // Append the new post to the post container
+                postContainer.insertBefore(newPost, 
+                    postContainer.firstChild);
+    
+                const postCreatedMessage = 
+                    document.getElementById('postCreatedMessage');
+                postCreatedMessage.style.display = 'block';
+    
+                // Close the modal
+                createPostModal.style.display = 'none';
+    
+                // Reset the form
+                postForm.reset();
+    
+                setTimeout(() => {
+                    postCreatedMessage.style.display = 'none';
+                }, 3000);
+            } else {
+                var errorMessage;
+                if (data.message.includes("duplicate key")) {
+                    errorMessage = document.getElementById('errorPostMessageDuplicate');
+                } else {
+                    errorMessage = document.getElementById('errorPostMessageGeneric');
+                }
 
-        setTimeout(() => {
-            postCreatedMessage.style.display = 'none';
-        }, 3000);
+                errorMessage.style.display = 'block';
+    
+                // Close the modal
+                createPostModal.style.display = 'none';
+    
+                // Reset the form
+                postForm.reset();
+    
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 5000);
+            }
+        };
+        
+        postRequest.send(postBody);
+        
     });
 
+    // load more and delete events from the posts on the main page 
     postContainer.addEventListener('click', function (event) {
         if (event.target.classList.contains('load-more') ||
          event.target.classList.contains('post-title')) {
@@ -174,31 +210,38 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (event.target.classList.contains('delete-post')) {
-            const titleToDelete = 
-                event.target.getAttribute('data-title');
             const postId = event.target.getAttribute('data-id');
-            const postToDelete = 
-                document.querySelector(`
-            .post-title[data-title=
-                "${titleToDelete}"]`).closest('.post-box');
-
-            // Add fadeOut class to initiate the animation
-            postToDelete.classList.add('fadeOut');
 
             //Delete via API
             const delRequest = new XMLHttpRequest();
-            delRequest.open('DELETE', 'http://52.71.159.161:8081/posts/title/'+ encodeURIComponent(titleToDelete), true);
+            delRequest.open('DELETE', 'http://52.71.159.161:8081/posts/id/'+ encodeURIComponent(postId), true);
             delRequest.setRequestHeader("Content-Type", "application/json");
+
+            delRequest.onload = function () {
+                if (delRequest.status >= 200 && delRequest.status < 400) {
+                    const postToDelete = 
+                    document.querySelector(`.post-title[data-id="${postId}"]`).closest('.post-box');
+
+                    // Add fadeOut class to initiate the animation
+                    postToDelete.classList.add('fadeOut');
+
+                    // Remove the post after the animation completes
+                    setTimeout(() => {
+                        postContainer.removeChild(postToDelete);
+                    }, 500);
+                } else {
+                    const errorMessage = document.getElementById('errorDelete');
+                    errorMessage.style.display = 'block';
+                    setTimeout(() => {
+                        errorMessage.style.display = 'none';
+                    }, 5000);
+                }
+            }
             delRequest.send();
-
-            // Remove the post after the animation completes
-            setTimeout(() => {
-                postContainer.removeChild(postToDelete);
-            }, 500);
-
         }
     });
 
+    // Closes detail modal window specificially
     closeDetailModal.addEventListener('click', function () {
     
         // Add fadeOut class
@@ -211,6 +254,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 500);
     });
 
+    // triggers edit post screen, closes detail screen
     editPostBtn.addEventListener('click', function() {
 
         //get post id
@@ -227,24 +271,16 @@ document.addEventListener('DOMContentLoaded', function () {
           postDetailModal.classList.remove('fadeOut'); 
         }, 500);
 
-        //Post form!
-        
-        // postTitle = detailTitle;
-        // postCategory = detailCategory;
-        // postDescription = detailDescription;
         editTitle.value = detailTitle.textContent;
         editCategory.value = detailCategory.textContent;
         editDescription.value = detailDescription.textContent;
-        // createPostModal.setAttribute("postTitle", detailTitle);
-        // createPostModal.setAttribute("postCategory", detailCategory);
-        // createPostModal.setAttribute("postDescription", detailDescription);
 
         editPostModal.setAttribute("post_id", postID);
         editPostModal.setAttribute("category_id", catId);
-        editPostTitle = editTitle.value;
         editPostModal.style.display = 'flex';
     });
 
+    // Submiting edit form!
     editForm.addEventListener('submit', function (event) {
         event.preventDefault();
 
@@ -271,90 +307,93 @@ document.addEventListener('DOMContentLoaded', function () {
         const formattedDate = year + '-' + month + '-' + day;
 
         const postID = editPostModal.getAttribute("post_id");
-        const catId = editPostModal.getAttribute("category_id");
-        const postToEdit = 
-                document.querySelector(`
-            .post-title[data-id=
-                "${postID}"]`).closest('.post-box');
+        const catId = categoryMap.get(postCategory);
 
-    
-        // Create a new post element
-        //const newPost = document.createElement('div');
-        ///newPost.className = 'post-box';
-        postToEdit.innerHTML = `
-            <h1 class="post-title" data-title="${postTitle}"
-         data-date="${formattedDate}"
-          data-description="${postDescription}">
-            ${postTitle}</h1><br>
-            
-        <h2 class="category">${postCategory}</h2><br>
-        <span class="post-date">${formattedDate}</span>
-        <p class="post-description">
-        ${postDescription.substring(0, 100)}...</p>
-        <button class="delete-post" data-title="${postTitle}" data-id="${postID}">
-        Delete</button>
-        <span class="load-more" data-title="${postTitle}" 
-        data-date="${formattedDate}" 
-        data-description="${postDescription}"
-        category="${postCategory}"
-        data-id="${postID}">
-        Load more</span>
-        `;
-
-        //get unedited post
-        //const titleToEdit = editPostTitle;
-
-        // Replace old post with new
-        //postContainer.replaceChild(newPost, postToEdit);
-
-        // // Append the new post to the post container
-        // postContainer.insertBefore(newPost, 
-        //     postContainer.firstChild);
-
-        // const postEditedMessage = 
-        //     document.getElementById('postEditedMessage');
-        // postEditedMessage.style.display = 'block';
-
-
-        // Close the modal
-        editPostModal.style.display = 'none';
-
-        // Reset the form
-        editForm.reset();
-
-        // Send POST Request to API //TODO - make this an edited post
+        // Send PUT request to API to update post
         const postRequest = new XMLHttpRequest();
         postRequest.open('PUT', 'http://52.71.159.161:8081/posts', true);
         postRequest.setRequestHeader("Content-Type", "application/json");
-        // const postBody = JSON.stringify({
-        //     post_id: postID,
-        //     title: postTitle,
-        //     author: {
-        //         "user_id" : 1,
-        //         "displayName" : "kelsey"
-        //     },
-        //     category: {
-        //         "category_id": catId,
-        //         "category_name": postCategory
-        //     },
-        //     body: postDescription,
-        //     date: formattedDate
-        // });
-
         const postBody = JSON.stringify({
             post_id: postID,
             title: postTitle,
-            author: 1,
-            category: 3,
+            author: {
+                "user_id" : 1,
+                "displayName" : "kelsey"
+            },
+            category: {
+                "category_id": catId,
+                "category_name": postCategory
+            },
             body: postDescription,
             date: formattedDate
         });
 
-        postRequest.send(postBody)
+        postRequest.onload = function () {
+            var data = JSON.parse(postRequest.response);
+            if (postRequest.status >= 200 && postRequest.status < 400) {
+                const postToEdit = 
+                    document.querySelector(`.post-title[data-id="${postID}"]`).closest('.post-box');
 
-        // setTimeout(() => {
-        //     postEditedMessage.style.display = 'none';
-        // }, 3000);
+                postToEdit.innerHTML = `
+                    <h1 class="post-title" data-title="${postTitle}"
+                    data-date="${formattedDate}"
+                    data-description="${postDescription}">
+                    ${postTitle}</h1><br>
+            
+                    <h2 class="category">${postCategory}</h2><br>
+                    <span class="post-date">${formattedDate}</span>
+                    <p class="post-description">
+                    ${postDescription.substring(0, 100)}...</p>
+                    <button class="delete-post" data-title="${postTitle}" data-id="${postID}">
+                    Delete</button>
+                    <span class="load-more" data-title="${postTitle}" 
+                    data-date="${formattedDate}" 
+                    data-description="${postDescription}"
+                    category="${postCategory}"
+                    data-id="${postID}"
+                    category-id="${catId}">
+                    Load more</span>
+                `;
+
+                const postEditedMessage = 
+                    document.getElementById('postEditedMessage');
+                postEditedMessage.style.display = 'block';
+
+                // Close the modal
+                editPostModal.style.display = 'none';
+
+                // Reset the form
+                editForm.reset();
+
+                setTimeout(() => {
+                    postEditedMessage.style.display = 'none';
+                }, 3000);
+
+            } else {
+                var errorMessage;
+                if (data.message.includes("duplicate key")) {
+                    errorMessage = document.getElementById('errorEditMessageDuplicate');
+                } else {
+                    errorMessage = document.getElementById('errorEditMessageGeneric');
+                }
+                errorMessage.style.display = 'block';
+
+                // Close the modal
+                editPostModal.style.display = 'none';
+        
+
+                // Reset the form
+                editForm.reset();
+
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 5000);
+
+            }
+        }
+
+        postRequest.send(postBody)
+        
     });
 
 //on load
@@ -404,6 +443,9 @@ request.onload = function () {
   }
 }
 
-request.send()
+request.send();
 });
+
+
+
 

@@ -211,7 +211,9 @@ footer {
 .title input,
 .category1 input,
 .editDescription,
-.postDescription {
+.postDescription,
+.postCategory,
+.editCategory {
     width: 100%;
     max-width: 100%;
     padding: 12px;
@@ -234,15 +236,21 @@ footer {
 }
 
 .postTitle:focus,
-.postCategory:focus,
 .postDescription:focus,
 .editTitle:focus,
-.editCategory:focus,
 .editDescription:focus {
     outline: none;
     border-color: #3498db;
     box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
 }
+
+/* .postCategory,
+.editCategory {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    padding: 12;
+} */
 
 .editSubmitBtn,
 .postSubmitBtn {
@@ -261,6 +269,7 @@ footer {
     background-color: #2980b9;
 }
 
+.edit-message,
 .post-message {
     display: none;
     position: fixed;
@@ -274,6 +283,20 @@ footer {
     z-index: 1000;
 }
 
+.error-message,
+.error-dup,
+.error-del {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f01123;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    z-index: 1000;
+}
 
 .load-more {
     display: inline-block;
