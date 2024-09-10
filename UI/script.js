@@ -367,18 +367,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 }, 3000);
 
             } else {
-                var errorMessage;
-                if (data.message.includes("duplicate key")) {
-                    errorMessage = document.getElementById('errorEditMessageDuplicate');
-                } else {
-                    errorMessage = document.getElementById('errorEditMessageGeneric');
-                }
+                var errorMessage = document.getElementById('errorEditMessageGeneric');
                 errorMessage.style.display = 'block';
 
                 // Close the modal
                 editPostModal.style.display = 'none';
         
-
                 // Reset the form
                 editForm.reset();
 
