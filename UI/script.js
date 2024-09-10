@@ -126,7 +126,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 newPost.innerHTML = `
                     <h1 class="post-title" data-title="${postTitle}"
                     data-date="${formattedDate}"
-                    data-description="${postDescription}">
+                    data-description="${postDescription}"
+                    data-id="${postId}">
                     ${postTitle}</h1><br>
                 
                     <h2 class="category">${postCategory}</h2><br>
@@ -161,12 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     postCreatedMessage.style.display = 'none';
                 }, 3000);
             } else {
-                var errorMessage;
-                if (data.message.includes("duplicate key")) {
-                    errorMessage = document.getElementById('errorPostMessageDuplicate');
-                } else {
-                    errorMessage = document.getElementById('errorPostMessageGeneric');
-                }
+                var errorMessage = document.getElementById('errorPostMessageGeneric');
 
                 errorMessage.style.display = 'block';
     
@@ -337,7 +333,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 postToEdit.innerHTML = `
                     <h1 class="post-title" data-title="${postTitle}"
                     data-date="${formattedDate}"
-                    data-description="${postDescription}">
+                    data-description="${postDescription}"
+                    data-id="${postID}">
                     ${postTitle}</h1><br>
             
                     <h2 class="category">${postCategory}</h2><br>
